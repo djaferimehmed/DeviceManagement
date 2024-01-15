@@ -26,3 +26,16 @@ $Cmdlets.count
 # Connecting to Graph
 Connect-MSGraph
 
+
+# Get all managed devices in the tenant
+$managedDevices = Get-IntuneManagedDevice | Get-MSGraphAllPages
+
+$filteredDevices = Get-IntuneManagedDevice | Get-MSGraphAllPages | Where-Object { $_.DeviceName -like "*DG-SM*" } | Select-Object DeviceName, managedDeviceOwnerType, userPrincipalName | ConvertTo-Json 
+$filteredDevices
+
+Get-IntuneManagedDevice | Get-MSGraphAllPages | Where-Object { $_.DeviceName -like '*DG-CH-PCD*' -and $_.managedDeviceOwnerType -eq 'personal' } | Select-Object DeviceName, managedDeviceId, managedDeviceOwnerType, userPrincipalName | ConvertTo-Json
+
+$changeDevice = Get-IntuneManagedDevice | Get-MSGraphAllPages | Where-Object { $_.DeviceName -like '*DG-CH-PCD*' -and $_.managedDeviceOwnerType -eq 'personal' } 
+Write-Host $changeDevice.userDisplayName
+Connect-MSGraph
+Update-MgDeviceManagementManagedDevice -ManagedDeviceId $changeDevice.id -ManagedDeviceOwnerType  "corporate"
